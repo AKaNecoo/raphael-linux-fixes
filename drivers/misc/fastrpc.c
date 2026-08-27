@@ -1231,7 +1231,18 @@ static int fastrpc_internal_invoke(struct fastrpc_user *fl,  u32 kernel,
 		if (!wait_for_completion_timeout(&ctx->work, 10 * HZ))
 			err = -ETIMEDOUT;
 	} else {
-		err = wait_for_completion_interruptible(&ctx->work);
+		/*
+		 * Raphael (sm8150) workaround: bound user-space invokes too.
+		 * A wedged DSP used to leave ssccli and friends blocked
+		 * forever, stalling hexagonrpcd jobs and leaking tasks.
+		 * 0 means timeout; a positive value means completion.
+		 */
+		err = wait_for_completion_interruptible_timeout(&ctx->work,
+							       10 * HZ);
+		if (!err)
+			err = -ETIMEDOUT;
+		else if (err > 0)
+			err = 0;
 	}
 
 	if (err)
@@ -2493,8 +2504,34 @@ static void fastrpc_rpmsg_remove(struct rpmsg_device *rpdev)
 	list_for_each_entry_safe(buf, b, &cctx->invoke_interrupted_mmaps, node)
 		list_del(&buf->node);
 
-	if (cctx->remote_heap)
+	if (cctx->remote_heap) {
+		/*
+		 * Raphael (sm8150) workaround: reclaim SCM ownership of the
+		 * remote heap before freeing it. Without this, a crash-induced
+		 * teardown leaves the CMA region owned by the DSP VMIDs in the
+		 * secure world, and the next fastrpc probe fails with
+		 * "Assign memory protection call failed -22" when re-assigning
+		 * the same region (SLPI sensor init then stalls and the DSP
+		 * firmware watchdogs itself).
+		 */
+		if (cctx->vmcount) {
+			u64 src_perms = 0;
+			struct qcom_scm_vmperm dst_perms;
+			u32 i;
+
+			for (i = 0; i < cctx->vmcount; i++)
+				src_perms |= BIT(cctx->vmperms[i].vmid);
+
+			dst_perms.vmid = QCOM_SCM_VMID_HLOS;
+			dst_perms.perm = QCOM_SCM_PERM_RWX;
+			if (qcom_scm_assign_mem(cctx->remote_heap->dma_addr,
+						(u64)cctx->remote_heap->size,
+						&src_perms, &dst_perms, 1))
+				dev_err(&rpdev->dev,
+					"Failed to reclaim remote heap ownership\n");
+		}
 		fastrpc_buf_free(cctx->remote_heap);
+	}
 
 	of_platform_depopulate(&rpdev->dev);
 
