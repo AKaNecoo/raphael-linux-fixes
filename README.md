@@ -1,9 +1,8 @@
 # raphael-linux-fixes
 
-Raphael（Redmi K20 Pro 至尊版，SM8150）修复版 Linux 内核。
+Raphael（Redmi K20 Pro 至尊版，SM8150）Linux 修复版内核。
 
 本仓库是 [GengWei1997/linux](https://github.com/GengWei1997/linux) 的 fork，保留完整上游历史。
-修复在 `raphael-7.0-fixes` 分支，基于上游 `raphael-7.0` 基线提交 `c526b7bf7ebc`。
 
 ## 修复内容
 
@@ -17,8 +16,8 @@ Raphael（Redmi K20 Pro 至尊版，SM8150）修复版 Linux 内核。
 修复效果：
 
 - 坏启动开机时间 4:03 → 约 25 秒
-- glink 卡死不再拖住开机
-- DSP crash 后可恢复，音频/传感器不再永久失效
+- glink 卡死不再拖慢开机
+- DSP crash 后可恢复
 
 ## 构建
 
@@ -34,7 +33,7 @@ Raphael（Redmi K20 Pro 至尊版，SM8150）修复版 Linux 内核。
 
 本机安装：`sudo dpkg -i linux-image-xiaomi-raphael.deb`。
 
-配合 [xiaomi_raphael_build_rootfs](https://github.com/AKaNecoo/xiaomi_raphael_build_rootfs) 的 Actions 构建时，`kernel_repository` 填 `AKaNecoo/raphael-linux-fixes`。
+或 配合 [xiaomi_raphael_build_rootfs](https://github.com/AKaNecoo/xiaomi_raphael_build_rootfs) 的 Actions， 构建时 `内核包仓库` 填 `AKaNecoo/raphael-linux-fixes`。
 
 ## 许可
 
