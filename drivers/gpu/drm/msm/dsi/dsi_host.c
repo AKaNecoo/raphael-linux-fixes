@@ -1614,6 +1614,7 @@ static void dsi_fifo_status(struct msm_dsi_host *msm_host)
 	/* fifo underflow, overflow */
 	if (status) {
 		dsi_write(msm_host, REG_DSI_FIFO_STATUS, status);
+		pr_err("%s: fifo status=0x%x\n", __func__, status);
 		msm_host->err_work_state |= DSI_ERR_STATE_FIFO;
 		if (status & DSI_FIFO_STATUS_CMD_MDP_FIFO_UNDERFLOW)
 			msm_host->err_work_state |=
