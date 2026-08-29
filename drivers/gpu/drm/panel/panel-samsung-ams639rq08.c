@@ -79,10 +79,6 @@ static int ams639rq08_on(struct ams639rq08 *ctx)
 	/* DBV Smooth Transition */
 	mipi_dsi_dcs_write_seq_multi(&dsi_ctx, MCS_UNKNOWN_B7, 0x01, 0x4b);
 
-	/* Timing Set (gate driver) */
-	mipi_dsi_dcs_write_seq_multi(&dsi_ctx, MCS_ACCESS_PROT_OFF, 0x07);
-	mipi_dsi_dcs_write_seq_multi(&dsi_ctx, 0xd9, 0x88, 0x2e);
-
 	/* Edge Dimming Speed Setting */
 	mipi_dsi_dcs_write_seq_multi(&dsi_ctx, MCS_ACCESS_PROT_OFF, 0x06);
 	mipi_dsi_dcs_write_seq_multi(&dsi_ctx, MCS_UNKNOWN_B7, 0x10);
@@ -98,6 +94,11 @@ static int ams639rq08_on(struct ams639rq08 *ctx)
 	mipi_dsi_dcs_write_seq_multi(&dsi_ctx, MCS_ACCESS_PROT_OFF, 0x23);
 	mipi_dsi_dcs_write_seq_multi(&dsi_ctx, MCS_BIAS_CURRENT_CTRL, 0x11);
 
+	/* OFC Setting 84.1 Mhz */
+	mipi_dsi_dcs_write_seq_multi(&dsi_ctx, 0xe9, 0x11, 0x55,
+					       0xa6, 0x75, 0xa3,
+					       0xb9, 0xa1, 0x4a,
+					       0x00, 0x1a, 0xb8);
 
 	/* Err_FG Setting */
 	mipi_dsi_dcs_write_seq_multi(&dsi_ctx, 0xe1,
@@ -106,11 +107,6 @@ static int ams639rq08_on(struct ams639rq08 *ctx)
 	mipi_dsi_dcs_write_seq_multi(&dsi_ctx, 0xe2,
 					       0x00, 0x00, 0x00,
 					       0x00, 0x00, 0x00);
-	/* OFC Setting 84.1 Mhz */
-	mipi_dsi_dcs_write_seq_multi(&dsi_ctx, 0xe9, 0x11, 0x55,
-					       0xa6, 0x75, 0xa3,
-					       0xb9, 0xa1, 0x4a,
-					       0x00, 0x1a, 0xb8);
 	mipi_dsi_dcs_write_seq_multi(&dsi_ctx, MCS_ACCESS_PROT_OFF, 0x0c);
 	mipi_dsi_dcs_write_seq_multi(&dsi_ctx, 0xe1, 0x19);
 	mipi_dsi_dcs_write_seq_multi(&dsi_ctx, MCS_PASSWD1, 0xa5, 0xa5);
