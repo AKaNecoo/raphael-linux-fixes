@@ -2248,6 +2248,10 @@ int drm_atomic_helper_commit(struct drm_device *dev,
 {
 	int ret;
 
+	pr_err_ratelimited("%s: commit by %s pid=%d nonblock=%d async=%d\n",
+			   __func__, current->comm, current->pid, nonblock,
+			   state->async_update);
+
 	if (state->async_update) {
 		ret = drm_atomic_helper_prepare_planes(dev, state);
 		if (ret)

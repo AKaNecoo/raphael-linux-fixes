@@ -1584,6 +1584,7 @@ static void dsi_timeout_status(struct msm_dsi_host *msm_host)
 	status = dsi_read(msm_host, REG_DSI_TIMEOUT_STATUS);
 
 	if (status) {
+		pr_err("%s: timeout status=0x%x\n", __func__, status);
 		dsi_write(msm_host, REG_DSI_TIMEOUT_STATUS, status);
 		msm_host->err_work_state |= DSI_ERR_STATE_TIMEOUT;
 	}
